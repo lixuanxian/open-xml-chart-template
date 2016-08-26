@@ -1,0 +1,23 @@
+# Common
+node_modules
+
+.vscode
+
+!tmp/*.md
+tmp/
+
+**/*.log
+**/*.blend
+**/*.pid
+
+reactDist
+
+config.js
+config.json
+
+!*example.json
+!*example.js
+
+!readme.txt
+!readme.md
+
