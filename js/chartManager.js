@@ -1,7 +1,6 @@
-var ChartManager, JSZip, DOMParser;
+var ChartManager, JSZip;
 
 JSZip = require('docxtemplater').JSZip;
-DOMParser = require('xmldom').DOMParser;
 
 module.exports = ChartManager = (function () {
   function ChartManager(zip, data) {
