@@ -1,5 +1,5 @@
 {
-  "name": "open-xml-chart-template",
+  "name": "openxml-chart-template",
   "version": "0.0.1",
   "description": "Chart Module for docxtemplater v0.0.1",
   "main": "js/index.js",

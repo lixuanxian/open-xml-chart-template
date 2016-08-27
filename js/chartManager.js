@@ -126,8 +126,8 @@ module.exports = ChartManager = (function () {
             tempSerXml = tempSerXml.replace(/<c:val>.+<\/c:val>/g, tempValXml);
 
             //replace color  
-            tempSerXml = tempSerXml.replace(/<a:solidFill>.+<\/a:solidFill>/g, 
-            ' <c:spPr><a:solidFill><a:srgbClr val="'+(tempRowData.color ? tempRowData.color.replace("#","") : this.getColor(tmpIndex)) +'"/> </a:solidFill></c:spPr>'
+            tempSerXml = tempSerXml.replace(/<a:solidFill>.+<\/a:solidFill>/g,
+              ' <c:spPr><a:solidFill><a:srgbClr val="' + (tempRowData.color ? tempRowData.color.replace("#", "") : this.getColor(tmpIndex)) + '"/> </a:solidFill></c:spPr>'
             );
 
             chartSerXmls[tmpIndex] = tempSerXml;
@@ -157,6 +157,14 @@ module.exports = ChartManager = (function () {
           chartXml = chartXml.replace(/<\/c:\w+Chart>.+<\/c:plotArea>/g, element + "$&");
         }, this);
 
+        if (chartData.variables) {
+          for (var tmpKey in chartData.variables){
+            chartXml = chartXml.replace("{" + tmpKey + "}", chartData.variables[tempKey]);
+          }
+        }
+
+       chartXml = chartXml.replace(/{[\w\d]+}/,"");
+
         this.zip.file(filename, chartXml);
         this.zip.file(embeddingsXLSX, excelZip.generate({ type: "nodeBuffer" }));
         //start replace strings
@@ -171,9 +179,9 @@ module.exports = ChartManager = (function () {
   	 * @return {ChartManager} for chaining
    */
   ChartManager.prototype.getColor = function (index) {
-    var SoftColor = ["66","99","cc","ff"];
-    index = index%96;
-    return SoftColor[Math.floor(index/8)%4]+SoftColor[index%4]+SoftColor[Math.floor(index/4)%4];
+    var SoftColor = ["66", "99", "cc", "ff"];
+    index = index % 96;
+    return SoftColor[Math.floor(index / 8) % 4] + SoftColor[index % 4] + SoftColor[Math.floor(index / 4) % 4];
   };
 
   /**
