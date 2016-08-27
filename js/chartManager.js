@@ -22,7 +22,7 @@ module.exports = ChartManager = (function () {
   ChartManager.prototype.replaceTag = function (filename) {
 
     var chartXml = this.zip.file(filename).asText();
-    var chartSerXmls = chartXml.match(/<c:ser>.+<\/c:ser>/g);
+    var chartSerXmls = chartXml.match(/<c:ser>.+<\/c:ser>/g) || [];
     var chartData = null;
 
     for (var tempKey in this.chartsData) {
@@ -45,18 +45,19 @@ module.exports = ChartManager = (function () {
         var embeddingsXLSX = filename.replace(/charts\/(chart)\d+\.xml/, "") + matchRelsFiles[1];
 
         var excelZip = new JSZip(this.zip.file(embeddingsXLSX).asBinary());
-        var sharedStringsXml = excelZip.file("xl/sharedStrings.xml").asText();
+        var sharedStringsXml = excelZip.file("xl/sharedStrings.xml");
+        sharedStringsXml = sharedStringsXml ? sharedStringsXml.asText() : "";
         var sheetXmls = excelZip.file(/xl\/worksheets\/sheet\d+\.xml/);
         var sheetXml = null;
         if (sheetXmls && sheetXmls.length >= 0) {
           sheetXml = sheetXmls[0].asText();
-          var stringsArray = sharedStringsXml.match(/([\w\}\{_-]+)(?=<\/t>)/g);
+          var stringsArray = sharedStringsXml.match(/([\w\}\{_-]+)(?=<\/t>)/g) || [];
           var tempSheetDataXml = "<sheetData>";
 
           //row 1  header
-          var catXml = '<c:cat> <c:strRef> <c:f>Sheet1!$A$2' +
-            (chartData.headerRowName && chartData.headerRowName.length <= 1 ? "" : ":$" + String.fromCharCode(65 + chartData.headerRowName.length) + "$2")
-            + '</c:f><c:strCache> <c:ptCount val="' + chartData.headerRowName.length + '"/>';
+          var catXml = '<c:cat> <c:strRef> <c:f>Sheet1!$B$1' +
+            (chartData.headerRowName && chartData.headerRowName.length <= 1 ? "" : ":$" + String.fromCharCode(65 + chartData.headerRowName.length) + "$1")
+            + '</c:f><c:strCache><c:ptCount val="' + chartData.headerRowName.length + '"/> ';
 
           tempSheetDataXml += '<row r="1"> ';
           for (var tmpIndex in chartData.headerRowName) {
@@ -71,10 +72,12 @@ module.exports = ChartManager = (function () {
               tempSheetDataXml += '<c r="' + (String.fromCharCode(65 + tmpIndex + 1)) + '1" t="s">  <v>' +
                 (stringsArray.indexOf(chartData.headerRowName[tmpIndex]) + 1)
                 + '</v> </c>';
+
+               catXml += '<c:pt idx="' + tmpIndex + '"> <c:v>' +
+               chartData.headerRowName[tmpIndex]
+              + '</c:v></c:pt>';
             }
-            catXml += '<c:pt idx="' + tmpIndex + '"> <c:v>' +
-              (isEmpty ? "" : chartData.headerRowName[tmpIndex])
-              + '</c:v> </c:pt>';
+       
           }
           catXml += "</c:strCache></c:strRef></c:cat>";
 
@@ -84,13 +87,8 @@ module.exports = ChartManager = (function () {
           for (var tmpIndex in chartData.rowData) {
             tmpIndex = parseInt(tmpIndex);
             var tempRowData = chartData.rowData[tmpIndex];
-            var tempSerXml = chartSerXmls[tmpIndex];
-            if (!tempSerXml) {
-              tempSerXml = chartSerXmls[0];
-              tempSerXml = tempSerXml.replace('<c:idx val="0"/>', '<c:idx val="' + tmpIndex + '"/>');
-              tempSerXml = tempSerXml.replace('<c:order val="0"/>', '<c:order val="' + tmpIndex + '"/>');
-              chartSerXmls[tmpIndex] = tempSerXml;
-            }
+            var tempSerXml = chartSerXmls[tmpIndex] || "";
+            
             var rowMark = (String.fromCharCode(65 + tempRowData.data.length));
             var tempValXml = '<c:val><c:numRef><c:f>Sheet1!$B$' + (tmpIndex + 2) + (tempRowData.data.length <= 1 ? "" : "$" + rowMark + "$" + (tmpIndex + 2))
               + '</c:f><c:numCache><c:ptCount val="' + tempRowData.data.length + '"/>';
@@ -124,10 +122,10 @@ module.exports = ChartManager = (function () {
             tempSerXml = tempSerXml.replace(/<c:cat>.+<\/c:cat>/g, catXml);
             tempSerXml = tempSerXml.replace(/<c:val>.+<\/c:val>/g, tempValXml);
 
-            //replace color  
-            tempSerXml = tempSerXml.replace(/<a:solidFill>.+<\/a:solidFill>/g,
-              ' <c:spPr><a:solidFill><a:srgbClr val="' + (tempRowData.color ? tempRowData.color.replace("#", "") : this.getColor(tmpIndex)) + '"/> </a:solidFill></c:spPr>'
-            );
+            // //replace color  
+            // tempSerXml = tempSerXml.replace(/<c:spPr>.+<\/c:spPr>/g,
+            //   ' <c:spPr><a:solidFill><a:srgbClr val="' + (tempRowData.color ? tempRowData.color.replace("#", "") : this.getColor(tmpIndex)) + '"/> </a:solidFill></c:spPr>'
+            // );
 
             chartSerXmls[tmpIndex] = tempSerXml;
           }
@@ -157,12 +155,12 @@ module.exports = ChartManager = (function () {
         }, this);
 
         if (chartData.variables) {
-          for (var tmpKey in chartData.variables){
+          for (var tmpKey in chartData.variables) {
             chartXml = chartXml.replace("{" + tmpKey + "}", chartData.variables[tempKey]);
           }
         }
 
-       chartXml = chartXml.replace(/{[\w\d]+}/,"");
+        chartXml = chartXml.replace(/{[\w\d]+}/, "");
 
         this.zip.file(filename, chartXml);
         this.zip.file(embeddingsXLSX, excelZip.generate({ type: "nodeBuffer" }));

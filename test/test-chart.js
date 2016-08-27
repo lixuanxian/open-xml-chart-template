@@ -8,24 +8,31 @@ var TGTDIR = __dirname + '/template/';
 
 
 var testArray = [
-    // {
-    //     fileName: "test-ppt-chart-1-pie.pptx",
-    //     data: {
-    //         chart1: {
-    //             variables: {
-    //                 chart1: "Pie Chart"
-    //             },
-    //             headerRowName: ["Ireland", "Germany"],
-    //             rowData: [
-    //                 {
-    //                     rowName: 'Oil',
-    //                     data: [5, 5]
-    //                 }
-    //             ]
-    //         }
+    {
+        fileName: "test-ppt-chart-1-pie.pptx",
+        data: {
+            chart1: {
+                variables: {
+                    chart1: "Pie Chart"
+                },
+                headerRowName: ['Oil'],
+                rowData: [
+               {
+                        color: "#ff0000",
+                        rowName: 'Income',
+                        data: [500]
+                    },
+                    {
+                        color: "#00ff00",
+                        rowName: 'Expense',
+                        data: [500]
+                    }
 
-    //     }
-    // },
+                ]
+            }
+
+        }
+    },
     {
         fileName: "test-ppt-chart-2-column.pptx",
         data: {
