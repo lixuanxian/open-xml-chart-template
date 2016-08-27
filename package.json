@@ -1,7 +1,7 @@
 {
   "name": "open-xml-chart-template",
   "version": "0.0.1",
-  "description": "Chart Module for docxtemplater v1.0",
+  "description": "Chart Module for docxtemplater v0.0.1",
   "main": "js/index.js",
   "scripts": {
     "test": "mocha"
@@ -19,27 +19,9 @@
     "gulp-uglify": "~1.5.3",
     "gulp-watch": "~4.3.5"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/prog666/docxtemplater-chart-module.git"
-  },
-  "author": {
-    "name": "Danila Dergachev",
-    "email": "gnomdan@yandex.ru"
-  },
   "license": "MIT",
   "dependencies": {
     "docxtemplater": "^2.1.0",
-    "gulp-browserify": "^0.5.0",
-    "jszip": "^2.4.0",
-    "xmldom": "^0.1.19"
-  },
-  "bugs": {
-    "url": "https://github.com/prog666/docxtemplater-chart-module/issues"
-  },
-  "homepage": "https://github.com/prog666/docxtemplater-chart-module#readme",
-  "directories": {
-    "example": "examples",
-    "test": "test"
+    "jszip": "^2.4.0"
   }
 }

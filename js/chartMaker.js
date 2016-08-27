@@ -1,6 +1,4 @@
-var ChartMaker, DocUtils;
-
-DocUtils = require('./docUtils');
+var ChartMaker;
 
 module.exports = ChartMaker = (function() {
 
