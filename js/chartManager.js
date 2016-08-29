@@ -22,7 +22,18 @@ module.exports = ChartManager = (function () {
   ChartManager.prototype.replaceTag = function (filename) {
 
     var chartXml = this.zip.file(filename).asText();
-    var chartSerXmls = chartXml.match(/<c:ser>.+<\/c:ser>/g) || [];
+    var chartSerXmls = [];
+
+    var tmpChartSerXmls = chartXml.match(/<c:ser>.+<\/c:ser>/gm) || [];
+    tmpChartSerXmls.forEach(function (element, index) {
+      var newSerXmls = element.split(/<\/c:ser>/);
+      newSerXmls.forEach(function (newElement) {
+        if(newElement && newElement != ""){
+          chartSerXmls.push(newElement + "</c:ser>\n");
+        }
+      }, this);
+    }, this);
+
     var chartData = null;
 
     for (var tempKey in this.chartsData) {
@@ -73,11 +84,11 @@ module.exports = ChartManager = (function () {
                 (stringsArray.indexOf(chartData.headerRowName[tmpIndex]) + 1)
                 + '</v> </c>';
 
-               catXml += '<c:pt idx="' + tmpIndex + '"> <c:v>' +
-               chartData.headerRowName[tmpIndex]
-              + '</c:v></c:pt>';
+              catXml += '<c:pt idx="' + tmpIndex + '"> <c:v>' +
+                chartData.headerRowName[tmpIndex]
+                + '</c:v></c:pt>';
             }
-       
+
           }
           catXml += "</c:strCache></c:strRef></c:cat>";
 
@@ -88,7 +99,7 @@ module.exports = ChartManager = (function () {
             tmpIndex = parseInt(tmpIndex);
             var tempRowData = chartData.rowData[tmpIndex];
             var tempSerXml = chartSerXmls[tmpIndex] || "";
-            
+
             var rowMark = (String.fromCharCode(65 + tempRowData.data.length));
             var tempValXml = '<c:val><c:numRef><c:f>Sheet1!$B$' + (tmpIndex + 2) + (tempRowData.data.length <= 1 ? "" : "$" + rowMark + "$" + (tmpIndex + 2))
               + '</c:f><c:numCache><c:ptCount val="' + tempRowData.data.length + '"/>';
@@ -148,11 +159,16 @@ module.exports = ChartManager = (function () {
           excelZip.file("xl/sharedStrings.xml", sharedStringsXml);
         }
 
-        chartXml = chartXml.replace(new RegExp('<c:ser>.+<\/c:ser>'), "");
+        // chartXml = chartXml.replace(new RegExp('<c:ser>.+<\/c:ser>'), "");
+        // chartSerXmls.forEach(function (element, index) {
+        //   chartXml = chartXml.replace(/<\/c:\w+Chart>.+<\/c:plotArea>/g, element + "$&");
+        // }, this);
 
-        chartSerXmls.forEach(function (element, index) {
-          chartXml = chartXml.replace(/<\/c:\w+Chart>.+<\/c:plotArea>/g, element + "$&");
-        }, this);
+        
+          for (var i = chartSerXmls.length -1 ; i >=0 ;  i-- ) {
+          chartXml = chartXml.replace(new RegExp('<c:ser><c:idx val="' + i + '".+<\/c:ser>'), "\n"+chartSerXmls[i]);
+          }
+    
 
         if (chartData.variables) {
           for (var tmpKey in chartData.variables) {
@@ -160,7 +176,7 @@ module.exports = ChartManager = (function () {
           }
         }
 
-        chartXml = chartXml.replace(/{[\w\d]+}/, "");
+        chartXml = chartXml.replace(/{[\w\d-#]+}/, "");
 
         this.zip.file(filename, chartXml);
         this.zip.file(embeddingsXLSX, excelZip.generate({ type: "nodeBuffer" }));
@@ -187,10 +203,7 @@ module.exports = ChartManager = (function () {
    */
   ChartManager.prototype.rendered = function () {
 
-    if (this.data)
-
-      this.get
-    return this;
+     return this;
   };
 
 
