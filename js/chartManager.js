@@ -92,7 +92,7 @@ module.exports = ChartManager = (function () {
           }
           catXml += "</c:strCache></c:strRef></c:cat>";
 
-          tempSheetDataXml += "</row>";
+           tempSheetDataXml += "</row>";
 
           //row 2 ~ n data row 
           for (var tmpIndex in chartData.rowData) {
@@ -101,7 +101,7 @@ module.exports = ChartManager = (function () {
             var tempSerXml = chartSerXmls[tmpIndex] || "";
 
             var rowMark = (String.fromCharCode(65 + tempRowData.data.length));
-            var tempValXml = '<c:val><c:numRef><c:f>Sheet1!$B$' + (tmpIndex + 2) + (tempRowData.data.length <= 1 ? "" : "$" + rowMark + "$" + (tmpIndex + 2))
+            var tempValXml = '<c:val><c:numRef><c:f>Sheet1!$B$' + (tmpIndex + 2) + (tempRowData.data.length <= 1 ? "" : ":$" + rowMark + "$" + (tmpIndex + 2))
               + '</c:f><c:numCache><c:ptCount val="' + tempRowData.data.length + '"/>';
 
             tempSheetDataXml += '<row r="' + (tmpIndex + 2) + '">';
@@ -129,7 +129,7 @@ module.exports = ChartManager = (function () {
 
             tempSheetDataXml += "</row>";
             tempValXml += '</c:numCache> </c:numRef>  </c:val>';
-
+            
             tempSerXml = tempSerXml.replace(/<c:cat>.+<\/c:cat>/g, catXml);
             tempSerXml = tempSerXml.replace(/<c:val>.+<\/c:val>/g, tempValXml);
 
